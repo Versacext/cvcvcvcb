@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallace Corp. | Off-World Asset Terminal v2049.7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Палитра Wallace Corp: Бетон, Чернота, Янтарь, Холодный Циан */
+            --bg-deep: #020203;
+            --bg-panel: #0a0b0d; /* Типо бетон */
+            --br-concrete: #1a1c21;
+            
+            --wallace-amber: #ffaa00; /* Янтарь (для шортов и акцентов) */
+            --wallace-cyan: #00ffff;  /* Холодный неон (для лонгов) */
+            --wallace-white: #e0e0e0;
+            --text-dim: #666e7a;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--wallace-white);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Эффект линий сканирования голограммы */
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.6;
+        }
+
+        .orbitron { font-family: 'Orbitron', sans-serif; tracking: 1px; }
+        .border-wallace { border: 1px solid var(--br-concrete); }
+        .bg-concrete { background-color: var(--bg-panel); }
+        
+        /* Тренды: заменяем зел/крас на циан/янтарь */
+        .text-up { color: var(--wallace-cyan); text-shadow: 0 0 5px var(--wallace-cyan); }
+        .text-down { color: var(--wallace-amber); text-shadow: 0 0 5px var(--wallace-amber); }
+        
+        .update-up { animation: flash-cyan 0.8s; }
+        .update-down { animation: flash-amber 0.8s; }
+        @keyframes flash-cyan { from { background: rgba(0,255,255,0.15); } to { background: transparent; } }
+        @keyframes flash-amber { from { background: rgba(255,170,0,0.15); } to { background: transparent; } }
+
+        /* Кнопки */
+        .btn-wallace-buy { background: transparent; border: 1px solid var(--wallace-cyan); color: var(--wallace-cyan); transition: 0.3s; }
+        .btn-wallace-buy:hover { background: var(--wallace-cyan); color: black; box-shadow: 0 0 15px var(--wallace-cyan); }
+        .btn-wallace-sell { background: transparent; border: 1px solid var(--wallace-amber); color: var(--wallace-amber); transition: 0.3s; }
+        .btn-wallace-sell:hover { background: var(--wallace-amber); color: black; box-shadow: 0 0 15px var(--wallace-amber); }
+
+        /* =========================================
+           ВЕЛИКАЯ АНИМАЦИЯ ГЛИТЧ-ЛОГОТИПА WALLACE
+           ========================================= */
+        .wallace-logo-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        /* Стилизованная 'W' из двух шевронов */
+        .w-logo-graphic {
+            position: relative;
+            width: 24px;
+            height: 18px;
+        }
+        .w-logo-graphic::before, .w-logo-graphic::after {
+            content: "";
+            position: absolute;
+            width: 14px;
+            height: 3px;
+            background: var(--wallace-white);
+            top: 50%;
+            transform-origin: center;
+        }
+        /* Левая часть W */
+        .w-logo-graphic::before {
+            left: 0;
+            transform: translateY(-50%) rotate(60deg);
+            box-shadow: 0 0 2px var(--wallace-white);
+        }
+        /* Правая часть W */
+        .w-logo-graphic::after {
+            right: 0;
+            transform: translateY(-50%) rotate(-60deg);
+            box-shadow: 0 0 2px var(--wallace-white);
+        }
+
+        /* Анимация постоянного мерцания голограммы */
+        .hologram-flicker {
+            animation: flicker 2s infinite;
+        }
+
+        /* Класс, который добавляет JS для жесткого глитча */
+        .glitch-active .w-logo-graphic::before,
+        .glitch-active .w-logo-graphic::after {
+            animation: hard-glitch 0.4s steps(1) infinite;
+            background: var(--wallace-amber); /* При глитче меняет цвет */
+        }
+        .glitch-active .wallace-text {
+            animation: text-glitch 0.4s steps(1) infinite;
+        }
+
+        @keyframes flicker {
+            0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% { opacity: 1; }
+            20%, 21.999%, 63%, 63.999%, 65%, 69.999% { opacity: 0.4; text-shadow: none; }
+        }
+
+        @keyframes hard-glitch {
+            0% { transform: translateY(-50%) rotate(60deg) translateX(0); opacity: 1; }
+            10% { transform: translateY(-52%) rotate(63deg) translateX(-3px); opacity: 0.8; cyan; }
+            20% { transform: translateY(-48%) rotate(57deg) translateX(3px); color: var(--wallace-cyan); }
+            30% { transform: translateY(-50%) rotate(60deg) translateX(0); opacity: 1; }
+            40% { transform: translateY(-50%) rotate(60deg) translateX(-5px) scaleY(2); }
+            50% { transform: translateY(-50%) rotate(60deg) translateX(0); background: white; }
+            100% { transform: translateY(-50%) rotate(60deg) translateX(0); }
+        }
+
+        @keyframes text-glitch {
+            0% { transform: translate(0); text-shadow: 0 0 2px white; color: white;}
+            20% { transform: translate(-2px, 2px); color: var(--wallace-cyan); text-shadow: 2px 0 var(--wallace-amber);}
+            40% { transform: translate(2px, -2px); color: var(--wallace-amber); text-shadow: -2px 0 var(--wallace-cyan);}
+            60% { transform: translate(-1px, -1px); color: white;}
+            100% { transform: translate(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="h-14 border-b border-wallace bg-concrete flex items-center justify-between px-6 relative z-10">
+        <div class="flex items-center gap-8">
+            <div class="wallace-logo-container hologram-flicker" id="logo-trigger" onclick="forceGlitch()">
+                <div class="w-logo-graphic"></div>
+                <span class="orbitron text-sm font-bold tracking-widest wallace-text">WALLACE CORP.</span>
+            </div>
+            <div class="hidden md:flex gap-6 text-[10px] text-dim uppercase orbitron tracking-wider">
+                <span class="text-wallace-white">Off-World Assets</span>
+                <span class="hover:text-wallace-white cursor-pointer">Replication Data</span>
+                <span class="hover:text-wallace-white cursor-pointer">Sector Markets</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-5 border-l border-wallace pl-6 h-full">
+            <div class="text-right">
+                <div class="text-[9px] text-dim uppercase">Net Equity</div>
+                <div class="font-bold text-wallace-white text-xs" id="user-balance">10,245.50 <span class="text-dim">USDT</span></div>
+            </div>
+            <div class="w-9 h-9 border border-wallace bg-concrete flex items-center justify-center orbitron text-xs text-dim">K</div>
+        </div>
+    </nav>
+
+    <div class="h-10 border-b border-wallace flex items-center px-6 gap-8 bg-deep overflow-x-auto relative z-10">
+        <div class="flex items-center gap-3">
+            <span class="text-xs font-bold orbitron tracking-wider text-wallace-white" id="ticker-symbol">BTC/USDT</span>
+            <span class="text-up font-bold text-xs" id="ticker-price">0.00</span>
+        </div>
+        <div class="flex flex-col text-[9px] border-l border-wallace pl-4">
+            <span class="text-dim">24h Response</span>
+            <span id="ticker-change">0.00%</span>
+        </div>
+        <div class="flex flex-col text-[9px]">
+            <span class="text-dim">High vector</span>
+            <span class="text-wallace-white" id="ticker-high">0.00</span>
+        </div>
+        <div class="flex flex-col text-[9px]">
+            <span class="text-dim">Trans. Volume</span>
+            <span class="text-wallace-white" id="ticker-vol">0.00</span>
+        </div>
+    </div>
+
+    <main class="flex h-[calc(100vh-96px)] relative z-10">
+        <aside class="w-64 border-r border-wallace bg-concrete flex flex-col">
+            <div class="p-3 border-b border-wallace">
+                <input type="text" id="market-search" placeholder="Query sector..." class="w-full bg-deep border border-wallace p-2 text-xs outline-none focus:border-wallace-amber text-wallace-amber">
+            </div>
+            <div class="flex-1 overflow-y-auto" id="market-list">
+                <div class="p-5 text-center text-dim italic text-[10px]">Initializing data stream...</div>
+            </div>
+        </aside>
+
+        <section class="flex-1 flex flex-col min-w-0 bg-deep">
+            <div class="flex-1 border-b border-wallace relative" id="chart-container">
+                <div id="tv_widget" class="h-full w-full"></div>
+            </div>
+            <div class="h-40 bg-concrete flex flex-col">
+                <div class="flex border-b border-wallace h-8 items-center px-4 gap-5 text-[9px] font-bold uppercase orbitron text-dim tracking-wider">
+                    <span class="text-wallace-white border-b border-wallace-white h-full flex items-center">Active Orders</span>
+                    <span class="hover:text-wallace-white cursor-pointer">Archive</span>
+                </div>
+                <div class="flex-1 overflow-auto p-5 text-center text-dim text-[10px]" id="orders-placeholder">
+                    No authorized transactions in current cycle.
+                </div>
+            </div>
+        </section>
+
+        <aside class="w-72 border-l border-wallace flex flex-col bg-concrete">
+            <div class="flex-1 flex flex-col min-h-0">
+                <div class="p-3 border-b border-wallace text-[10px] font-bold text-dim uppercase orbitron tracking-wider">Asset Depth</div>
+                <div class="grid grid-cols-3 px-3 py-1 text-[9px] text-dim border-b border-wallace uppercase">
+                    <span>Price</span>
+                    <span class="text-right">Size</span>
+                    <span class="text-right">Total</span>
+                </div>
+                <div id="book-asks" class="flex-1 overflow-hidden flex flex-col-reverse text-[10px]"></div>
+                <div class="py-2 px-4 border-y border-wallace bg-deep flex justify-between items-center">
+                    <span class="text-lg font-bold" id="mid-price">0.00</span>
+                    <span class="text-[9px] text-dim uppercase orbitron">Fair Value</span>
+                </div>
+                <div id="book-bids" class="flex-1 overflow-hidden text-[10px]"></div>
+            </div>
+
+            <div class="p-5 border-t border-wallace bg-deep">
+                <div class="flex gap-2 mb-4 orbitron">
+                    <button class="flex-1 btn-wallace-buy py-2 rounded-sm font-bold uppercase text-[10px]">Acquire</button>
+                    <button class="flex-1 btn-wallace-sell py-2 rounded-sm font-bold uppercase text-[10px]">Liquidate</button>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-[9px] text-dim">
+                        <span>Available Reserve</span>
+                        <span id="avail-usdt" class="text-wallace-white">10,245.50 USDT</span>
+                    </div>
+                    <div class="relative">
+                        <input type="number" id="inp-price" class="w-full bg-concrete border border-wallace p-2.5 rounded-sm text-right pr-14 font-bold outline-none text-wallace-white focus:border-wallace-cyan">
+                        <span class="absolute left-2.5 top-3 text-[9px] text-dim uppercase orbitron">Unit Price</span>
+                        <span class="absolute right-2.5 top-3 text-[9px] text-dim">USDT</span>
+                    </div>
+                    <div class="relative">
+                        <input type="number" id="inp-amount" class="w-full bg-concrete border border-wallace p-2.5 rounded-sm text-right pr-14 font-bold outline-none text-wallace-white focus:border-wallace-cyan">
+                        <span class="absolute left-2.5 top-3 text-[9px] text-dim uppercase orbitron">Quantum</span>
+                        <span class="absolute right-2.5 top-3 text-[9px] text-dim" id="asset-unit">BTC</span>
+                    </div>
+                </div>
+                <button class="w-full btn-wallace-buy orbitron hover:bg-wallace-cyan hover:text-black text-white font-bold py-3 rounded-sm mt-5 uppercase transition-colors text-xs tracking-widest">Authorize Transaction</button>
+            </div>
+        </aside>
+    </main>
+
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        /**
+         * WALLACE ENGINE v2049.7
+         * Стилизация под Blade Runner 2049.
+         * Логика сохранена и оптимизирована.
+         */
+
+        const STATE = {
+            symbol: 'btcusdt',
+            asset: 'BTC',
+            price: 0,
+            ws: null,
+            markets: [],
+            balance: 10245.50
+        };
+
+        // --- Инициализация ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initMarkets();
+            switchMarket('bitcoin', 'btc');
+            startRandomGlitch(); // Запускаем цикл глитчей логотипа
+            
+            // Поиск
+            document.getElementById('market-search').addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                renderMarketList(STATE.markets.filter(m => 
+                    m.symbol.toLowerCase().includes(term) || m.id.toLowerCase().includes(term)
+                ));
+            });
+        });
+
+        // =========================================
+        // ЛОГИКА ГЛИТЧА ЛОГОТИПА (КАК В ФИЛЬМЕ)
+        // =========================================
+        function triggerGlitchEffect() {
+            const container = document.getElementById('logo-trigger');
+            container.classList.add('glitch-active');
+            
+            // Убираем эффект через 400мс
+            setTimeout(() => {
+                container.classList.remove('glitch-active');
+            }, 400);
+        }
+
+        // Случайные глитчи каждые 10-20 секунд
+        function startRandomGlitch() {
+            const nextTick = Math.random() * 10000 + 10000;
+            setTimeout(() => {
+                triggerGlitchEffect();
+                startRandomGlitch();
+            }, nextTick);
+        }
+
+        // Принудительный глитч при клике (для теста)
+        function forceGlitch() {
+            triggerGlitchEffect();
+        }
+
+
+        // --- Остальная логика биржи (адаптирована под новые цвета) ---
+
+        async function initMarkets() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50');
+                STATE.markets = await res.json();
+                renderMarketList(STATE.markets);
+            } catch (e) {
+                console.error("Data Stream Error", e);
+            }
+        }
+
+        function switchMarket(id, symbol) {
+            STATE.symbol = symbol.toLowerCase() + 'usdt';
+            STATE.asset = symbol.toUpperCase();
+            
+            document.getElementById('ticker-symbol').innerText = `${STATE.asset}/USDT`;
+            document.getElementById('asset-unit').innerText = STATE.asset;
+            
+            const coin = STATE.markets.find(m => m.id === id);
+            if (coin) updateTickerStatic(coin);
+
+            initTVWidget();
+            connectStream();
+            initOrderBook();
+        }
+
+        function connectStream() {
+            if (STATE.ws) {
+                STATE.ws.onmessage = null;
+                STATE.ws.close();
+            }
+
+            STATE.ws = new WebSocket(`wss://stream.binance.com:9443/ws/${STATE.symbol}@ticker`);
+            
+            STATE.ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                updateTickerRealtime(data);
+            };
+        }
+
+        function renderMarketList(list) {
+            const cont = document.getElementById('market-list');
+            cont.innerHTML = list.map(m => `
+                <div class="flex items-center justify-between p-3 hover:bg-slate-900 cursor-pointer border-b border-wallace" 
+                     onclick="switchMarket('${m.id}', '${m.symbol}')">
+                    <div class="flex items-center gap-2">
+                        <img src="${m.image}" class="w-4 h-4 rounded-full filter grayscale hover:grayscale-0">
+                        <span class="font-bold text-[10px] uppercase text-wallace-white">${m.symbol}/USDT</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] font-bold text-wallace-white">$${m.current_price.toLocaleString()}</div>
+                        <div class="text-[9px] ${m.price_change_percentage_24h >= 0 ? 'text-up' : 'text-down'}">
+                            ${m.price_change_percentage_24h.toFixed(2)}%
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateTickerStatic(coin) {
+            document.getElementById('ticker-high').innerText = coin.high_24h.toLocaleString();
+            document.getElementById('ticker-vol').innerText = Math.round(coin.total_volume / 1000000) + 'M';
+            document.getElementById('inp-price').value = coin.current_price;
+        }
+
+        function updateTickerRealtime(data) {
+            const price = parseFloat(data.c);
+            const change = parseFloat(data.P);
+            const el = document.getElementById('ticker-price');
+            const midEl = document.getElementById('mid-price');
+            
+            const dir = price >= STATE.price ? 'up' : 'down';
+            // Применяем классы циана/янтаря
+            el.className = `text-xs font-bold text-${dir} update-${dir}`;
+            
+            el.innerText = price.toFixed(getStatePriceDecimals());
+            midEl.innerText = price.toFixed(getStatePriceDecimals());
+            midEl.className = `text-xl font-bold text-${dir}`;
+            
+            const changeEl = document.getElementById('ticker-change');
+            changeEl.innerText = `${change > 0 ? '+' : ''}${change.toFixed(2)}%`;
+            changeEl.className = change >= 0 ? 'text-up' : 'text-down';
+
+            STATE.price = price;
+        }
+
+        function getStatePriceDecimals() {
+            return STATE.price > 1 ? 2 : 6;
+        }
+
+        // --- Улучшенный футуристичный стакан ---
+        function initOrderBook() {
+            const asks = document.getElementById('book-asks');
+            const bids = document.getElementById('book-bids');
+            
+            const generateRows = (type) => {
+                return Array.from({length: 15}).map(() => {
+                    const size = (Math.random() * 0.8).toFixed(4);
+                    const depth = Math.floor(Math.random() * 95);
+                    // Цвета полосок глубины тоже меняем
+                    const barColor = type === 'bid' ? 'rgba(0,255,255,0.08)' : 'rgba(255,170,0,0.08)';
+                    
+                    return `
+                        <div class="relative flex justify-between px-3 py-0.5 cursor-pointer hover:bg-slate-800/50">
+                            <div class="absolute inset-y-0 right-0 z-0" style="width: ${depth}%; background: ${barColor}; transition: width 0.3s;"></div>
+                            <span class="${type === 'bid' ? 'text-up' : 'text-down'} z-10">0.00</span>
+                            <span class="text-wallace-white z-10">${size}</span>
+                            <span class="text-dim z-10">${(size * 1).toFixed(2)}</span>
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            asks.innerHTML = generateRows('ask');
+            bids.innerHTML = generateRows('bid');
+
+            // Живое обновление цен в стакане
+            setInterval(() => {
+                if (!STATE.price) return;
+                const decimals = getStatePriceDecimals();
+                const step = STATE.price * 0.0001;
+
+                document.querySelectorAll('#book-asks span:first-child').forEach((el, i) => {
+                    el.innerText = (STATE.price + ((i+1) * step)).toFixed(decimals);
+                });
+                document.querySelectorAll('#book-bids span:first-child').forEach((el, i) => {
+                    el.innerText = (STATE.price - (i * step)).toFixed(decimals);
+                });
+            }, 1000);
+        }
+
+        function initTVWidget() {
+            new TradingView.widget({
+                "autosize": true,
+                "symbol": `BINANCE:${STATE.symbol.toUpperCase()}`,
+                "interval": "120",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1", // Свечи
+                "locale": "en",
+                "toolbar_bg": "#0a0b0d",
+                "enable_publishing": false,
+                "hide_side_toolbar": false,
+                "container_id": "tv_widget",
+                // Кастомизация цветов графика под Wallace Corp
+                "overrides": {
+                    "paneProperties.background": "#020203",
+                    "paneProperties.vertGridProperties.color": "#1a1c21",
+                    "paneProperties.horzGridProperties.color": "#1a1c21",
+                    "mainSeriesProperties.candleStyle.upColor": "#00ffff",
+                    "mainSeriesProperties.candleStyle.downColor": "#ffaa00",
+                    "mainSeriesProperties.candleStyle.borderUpColor": "#00ffff",
+                    "mainSeriesProperties.candleStyle.borderDownColor": "#ffaa00",
+                    "mainSeriesProperties.candleStyle.wickUpColor": "#00ffff",
+                    "mainSeriesProperties.candleStyle.wickDownColor": "#ffaa00",
+                }
+            });
+        }
+    </script>
+</body>
+</html>
